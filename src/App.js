@@ -36,27 +36,29 @@ function App() {
 		})
 
 		socket.on("callUser", (data) => {
-			setReceivingCall(true)
-			setCaller(data.from)
-			setName(data.name)
-			setCallerSignal(data.signal)
+			if (data.callId === idToCall) {
+       			    setReceivingCall(true);
+        		    setCaller(data.from);
+        		    setName(data.name);
+        		    setCallerSignal(data.signal);
+    }
 		})
 	}, [])
 
-	const callUser = (id) => {
-		const peer = new Peer({
-			initiator: true,
-			trickle: false,
-			stream: stream
-		})
-		peer.on("signal", (data) => {
-			socket.emit("callUser", {
-				userToCall: id,
-				signalData: data,
-				from: me,
-				name: name
-			})
-		})
+	const callUser = (idToCall) => {
+    const peer = new Peer({
+        initiator: true,
+        trickle: false,
+        stream: stream
+    });
+    peer.on("signal", (data) => {
+        socket.emit("callUser", {
+            callId: idToCall, // Send the call ID
+            signalData: data,
+            from: me,
+            name: name
+        });
+    });
 		peer.on("stream", (stream) => {
 			
 				userVideo.current.srcObject = stream
